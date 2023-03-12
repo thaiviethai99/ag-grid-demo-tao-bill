@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ag-Grid Basic Example</title>
+    <script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+    <style media="only screen">
+            html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                box-sizing: border-box;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            html {
+                position: absolute;
+                top: 0;
+                left: 0;
+                padding: 0;
+                overflow: auto;
+            }
+
+            body {
+                padding: 1rem;
+                overflow: auto;
+            }
+            .example-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#myGrid {
+  flex: 1 1 0px;
+  width: 100%;
+}
+        </style>
+</head>
+<body>
+        <div class="example-wrapper">
+            <div style="margin-bottom: 5px">
+                <button onclick="onEdit()" style="margin-bottom: 5px; font-weight: bold">
+                  Show edit
+                </button>
+                <button onclick="onBtExport()" style="margin-bottom: 5px; font-weight: bold">
+                    Export to Excel
+                </button>
+                <!-- <button onclick="onData()" style="margin-bottom: 5px; font-weight: bold">
+                  Load data
+                </button> -->
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                  Select file to upload:
+                  <input type="file" name="fileToUpload" id="fileToUpload"><br>
+                  <input type="submit" value="Upload File" name="submit">
+                </form>
+                <div id="result"></div>
+                <input type="text" oninput="onQuickFilterChanged()" id="quickFilter" placeholder="quick filter...">
+                </div>
+                <div>
+                     Selection:
+                    <span id="selectedRows">
+                    </span>
+                </div>
+                <div id="myGrid" class="ag-theme-alpine" style="height: 100%">
+                </div>
+            </div>
+        </body>
+    
+    <script type="text/javascript">
+//    show me code import excel ag-Grid
+
+        const gridOptions = {
+  columnDefs: [
+    {
+      headerName: 'Id',
+      field: 'id',
+      minWidth: 180,
+      headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
+      checkboxSelection: true,
+    },
+    { field: 'name'},
+    /*{ field: 'age'},
+    { field: 'country', minWidth: 150 },
+    { field: 'year' },
+    { field: 'date', minWidth: 150 },
+    { field: 'sport', minWidth: 150 },
+    { field: 'gold' },
+    { field: 'silver' },
+    { field: 'bronze' },
+    { field: 'total' },*/
+  ],
+  defaultColDef: {
+    flex: 1,
+    minWidth: 150,
+    sortable: true,
+    resizable: true,
+    filter: true,
+    editable: true,
+  },
+  //suppressRowClickSelection: true,
+  //rowSelection: 'multiple',
+  suppressMenuHide: true,
+  rowSelection: 'single',
+  editType: 'fullRow',
+  onSelectionChanged: onSelectionChanged,
+};
+
+var gridDiv
+
+
+
+function onEdit(){
+    gridOptions.api.startEditingCell({
+    rowIndex: 0,
+    colKey: 'name'
+});
+}
+
+function onData(){
+    new agGrid.Grid(gridDiv, gridOptions);
+    fetch('http://localhost/refesh-token/excel.php')
+    .then((response) => response.json())
+    .then((data) => gridOptions.api.setRowData(data));
+}
+
+function onBtExport() {
+ 
+let rowData = [];
+  gridOptions.api.forEachNode(node => rowData.push(node.data));
+  console.log(rowData)
+  $.each(rowData, function( k, v ) {
+  alert( "Key: " + v.name);
+})
+
+}
+
+function onSelectionChanged() {
+  const selectedRows = gridOptions.api.getSelectedRows();
+  console.log(selectedRows)
+  document.querySelector('#selectedRows').innerHTML =
+    selectedRows.length === 1 ? selectedRows[0].name : '';
+}
+
+function onQuickFilterChanged() {
+  gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+}
+
+// setup the grid after the page has finished loading
+document.addEventListener('DOMContentLoaded', function () {
+  gridDiv = document.querySelector('#myGrid');
+  //new agGrid.Grid(gridDiv, gridOptions);
+
+  
+
+/*fetch('https://www.ag-grid.com/example-assets/olympic-winners.json')
+    .then((response) => response.json())
+    .then((data) => gridOptions.api.setRowData(data));
+    */
+});
+
+
+$(document).ready(function(){
+  // Submit form data via Ajax
+  $("#upload-form").on('submit', function(e){
+    e.preventDefault();
+    $.ajax({
+      url: 'upload.php',
+      type: 'POST',
+      data: new FormData(this),
+      contentType: false,
+      cache: false,
+      processData:false,
+      success: function(response){
+        //$("#result").html(response);
+        if(response.info==1){
+            new agGrid.Grid(gridDiv, gridOptions);
+            gridOptions.api.setRowData(response.data)
+        }else{
+            alert(response.message);
+        }
+
+      }
+    });
+  });
+});
+
+
+    </script>
+</html>

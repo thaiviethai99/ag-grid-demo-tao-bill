@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <script lang="javascript" src="https://cdn.sheetjs.com/xlsx-0.18.9/package/dist/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
+  <script>dayjs().format()</script>
+  <style type="text/css">
+  </style>
+</head>
+<body>
+
+  
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <h3>AG-GRID TUTORIAL</h3>
+      <div class="example-wrapper">
+            <div style="margin-bottom: 5px">
+                <button onclick="onBtExportExcel()" style="margin-bottom: 5px; font-weight: bold">
+                    Export to Excel
+                </button>
+                <!-- <button onclick="onData()" style="margin-bottom: 5px; font-weight: bold">
+                  Load data
+                </button> -->
+                <form id="upload-form" method="post" enctype="multipart/form-data">
+                  Select file to upload:
+                  <input type="file" name="fileToUpload" id="fileToUpload"><br>
+                </form>
+                <div id="result"></div>
+                <div>
+                    Chọn sheet:<select id="sheetList">
+                    </select>
+                </div>
+                <div>
+                     <input type="text" oninput="onQuickFilterChanged()" id="quickFilter" placeholder="quick filter...">
+                </div>
+               
+                </div>
+                <div>
+                     Selection:
+                    <span id="selectedRows">
+                    </span>
+                </div>
+                <div id="myGrid" class="ag-theme-alpine" style="height: 350px;width:550px">
+                </div>
+            </div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script type="text/javascript">
+//    show me code import excel ag-Grid
+    var gridDiv
+    const gridOptions = {
+  columnDefs: [
+    {
+      headerName: 'Id',
+      field: 'id',
+      minWidth: 180,
+      headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
+      checkboxSelection: true,
+    },
+    { field: 'name'},
+    /*{ field: 'age'},
+    { field: 'country', minWidth: 150 },
+    { field: 'year' },
+    { field: 'date', minWidth: 150 },
+    { field: 'sport', minWidth: 150 },
+    { field: 'gold' },
+    { field: 'silver' },
+    { field: 'bronze' },
+    { field: 'total' },*/
+  ],
+  defaultColDef: {
+    flex: 1,
+    minWidth: 150,
+    sortable: true,
+    resizable: true,
+    filter: true,
+    editable: true,
+  },
+  //suppressRowClickSelection: true,
+  //rowSelection: 'multiple',
+  suppressMenuHide: true,
+  rowSelection: 'single',
+  editType: 'fullRow',
+  onSelectionChanged: onSelectionChanged,
+};
+
+
+
+
+
+function onEdit(){
+    gridOptions.api.startEditingCell({
+    rowIndex: 0,
+    colKey: 'name'
+});
+}
+
+function onData(){
+    new agGrid.Grid(gridDiv, gridOptions);
+    fetch('http://localhost/refesh-token/excel.php')
+    .then((response) => response.json())
+    .then((data) => gridOptions.api.setRowData(data));
+}
+
+function onBtExportData() {
+ 
+let rowData = [];
+  gridOptions.api.forEachNode(node => rowData.push(node.data));
+  console.log(rowData)
+  $.each(rowData, function( k, v ) {
+  alert( "Key: " + v.name);
+})
+
+}
+
+
+
+
+function onSelectionChanged() {
+  const selectedRows = gridOptions.api.getSelectedRows();
+  console.log(selectedRows)
+  document.querySelector('#selectedRows').innerHTML =
+    selectedRows.length === 1 ? selectedRows[0].name : '';
+}
+
+function onQuickFilterChanged() {
+  gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+}
+
+
+function recreateGrid() {
+  gridOptions.api.destroy();
+  console.log('destroyed grid');
+  newGrid();
+}
+
+var rowData=[{"id":"","name":""}]
+
+function newGrid() {
+  console.log('rebuilding grid');
+  var gridDiv = document.querySelector('#myGrid');
+  new agGrid.Grid(gridDiv, gridOptions);
+  gridOptions.api.setRowData(rowData);
+}
+
+// setup the grid after the page has finished loading
+document.addEventListener('DOMContentLoaded', function () {
+  //gridDiv = document.querySelector('#myGrid');
+  //new agGrid.Grid(gridDiv, gridOptions);
+    newGrid();
+
+  
+
+/*fetch('https://www.ag-grid.com/example-assets/olympic-winners.json')
+    .then((response) => response.json())
+    .then((data) => gridOptions.api.setRowData(data));
+    */
+});
+
+
+$(document).ready(function(){
+  // Submit form data via Ajax
+  $("#fileToUpload").on('change', function(e){
+    var file_data = $('#fileToUpload').prop('files')[0];   
+    var form_data = new FormData();                  
+    form_data.append('fileToUpload', file_data);
+
+    $.ajax({
+      url: 'load_sheet.php',
+      type: 'POST',
+      data: form_data,
+      contentType: false,
+      cache: false,
+      processData:false,
+      success: function(response){
+        //$("#result").html(response);
+        if(response.info==1){
+            //gridOptions.api.destroy();
+            //new agGrid.Grid(gridDiv, gridOptions);
+            //gridOptions.api.setRowData(response.data);
+            $.each(response.data,function(i,item){
+               $("#sheetList").append('<option value="'+item.id+'">'+item.name+'</option>');
+            })
+            $('#sheetList')
+            .val('0')
+            .trigger('change');
+            //gridOptions.api.redrawRows();
+        }else{
+            alert(response.message);
+        }
+
+      }
+    });
+  });
+});
+
+$(document).on('change', '#sheetList', function(){
+    var file_data = $('#fileToUpload').prop('files')[0];   
+    var form_data = new FormData();                  
+    form_data.append('fileToUpload', file_data);
+    form_data.append('sheetId', $('#sheetList').val());
+    $.ajax({
+      url: 'upload.php',
+      type: 'POST',
+      data: form_data,
+      contentType: false,
+      cache: false,
+      processData:false,
+      success: function(response){
+        //$("#result").html(response);
+        if(response.info==1){
+            //gridOptions.api.destroy();
+            //new agGrid.Grid(gridDiv, gridOptions);
+            gridOptions.api.setRowData(response.data);
+            
+            //gridOptions.api.redrawRows();
+        }else{
+            alert(response.message);
+        }
+
+      }
+    });
+});
+
+
+function onBtExportExcel(){
+    gridOptions.api.stopEditing();
+    var dataExport = this.dataSearch;
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1; //months from 1-12
+    var day = dateObj.getUTCDate();
+    var year = dateObj.getUTCFullYear();
+
+    if (day < 10) day = '0' + day;
+
+    if (month < 10) month = '0' + month;
+
+    var fileName = 'excel_' + day + "_" + month + "_" + year + '.xlsx';
+    var dataPush = [];
+    let rowData = [];
+    gridOptions.api.forEachNode(node => rowData.push(node.data));
+    $.each(rowData, function( k, v ) {
+      //alert( "Key: " + v.name);
+        let dataObject = {
+            "Id": v.id,
+            "Name": v.name,
+
+        }
+        dataPush.push(dataObject);
+    })
+    /* let objectMaxLength = [];
+    for (let i = 0; i < dataExport.length; i++) {
+        let value = Object.values(dataExport[i]);
+        for (let j = 0; j < value.length; j++) {
+            if (typeof value[j] == "number") {
+                objectMaxLength[j] = 10;
+            } else {
+                objectMaxLength[j] =
+                    objectMaxLength[j] >= value[j].length ?
+                    objectMaxLength[j] :
+                    value[j].length;
+            }
+        }
+    }
+    //console.log(objectMaxLength);
+    var wscols = [{
+            width: 20
+        }, // first column
+        {
+            width: 20
+        }, // second column
+        {
+            width: 20
+        }, //...
+        {
+            width: objectMaxLength[3]
+        },
+        {
+            width: objectMaxLength[4]
+        },
+        {
+            width: objectMaxLength[5]
+        }
+    ];*/
+
+    var ws = XLSX.utils.json_to_sheet(dataPush);
+    //ws["!cols"] = wscols;
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "SGP");
+    XLSX.writeFile(wb, fileName);
+}
+
+
+    </script>
+</html>
