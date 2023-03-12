@@ -28,33 +28,16 @@ if(isset($_FILES["fileToUpload"]) && $_FILES["fileToUpload"]["error"] == 0){
       $inputFileName = $_FILES["fileToUpload"]["tmp_name"];
       $spreadsheet = IOFactory::load($inputFileName);
       $spreadsheet=$spreadsheet->getSheet($sheetId);
-      //$sheetData = $spreadsheet->toArray(null, true, true, true);
-      //array_shift($sheetData);
+      $sheetData = $spreadsheet->toArray(null, true, true, true);
+      array_shift($sheetData);
       $arrJson=[];
-      /*foreach($sheetData as $item){
+      foreach($sheetData as $item){
         $arrJson[]=[
           'id'=>$item['A'],
           'name'=>$item['B']
         ];
-      }*/
-        $highestRow = $spreadsheet->getHighestRow(); // e.g. 10
-        $highestColumn = $spreadsheet->getHighestColumn(); // e.g 'F'
-        $highestColumnIndex = PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
-
-        $data = array();
-        for ($row = 1; $row <= $highestRow; $row++) {
-            $riga = array();
-            for ($col = 1; $col <= $highestColumnIndex; $col++) {
-                $riga[] = $spreadsheet->getCellByColumnAndRow($col, $row)->getValue();
-            }
-            if (1 === $row) {
-                // Header row. Save it in "$keys".
-                $keys = $riga;
-                continue;
-            }
-            $data[] = array_combine($keys, $riga);
-        }
-      $result=['info'=>1,"data"=>$data,"message"=>"upload success"];
+      }
+      $result=['info'=>1,"data"=>$arrJson,"message"=>"upload success"];
     
   } else{
     $result=['info'=>0,"message"=>"Invalid file type or size"];

@@ -59,10 +59,16 @@
 <script type="text/javascript">
 //    show me code import excel ag-Grid
     var gridDiv
-    const columnDefs = [
-    ];
     const gridOptions = {
-  columnDefs: columnDefs
+  columnDefs: [
+    {
+      headerName: 'Id',
+      field: 'id',
+      minWidth: 180,
+      headerCheckboxSelection: true,
+      headerCheckboxSelectionFilteredOnly: true,
+      checkboxSelection: true,
+    },
     //{ field: 'name'},
     /*{ field: 'age'},
     { field: 'country', minWidth: 150 },
@@ -73,7 +79,7 @@
     { field: 'silver' },
     { field: 'bronze' },
     { field: 'total' },*/
-  ,
+  ],
   defaultColDef: {
     flex: 1,
     minWidth: 150,
@@ -147,7 +153,6 @@ function newGrid() {
   var gridDiv = document.querySelector('#myGrid');
   new agGrid.Grid(gridDiv, gridOptions);
   gridOptions.api.setRowData(rowData);
-  $('#myGrid').hide();
 }
 
 // setup the grid after the page has finished loading
@@ -202,7 +207,6 @@ $(document).ready(function(){
 });
 
 $(document).on('change', '#sheetList', function(){
-    $('#myGrid').show();
     var file_data = $('#fileToUpload').prop('files')[0];   
     var form_data = new FormData();                  
     form_data.append('fileToUpload', file_data);
@@ -219,18 +223,12 @@ $(document).on('change', '#sheetList', function(){
         if(response.info==1){
             //gridOptions.api.destroy();
             //new agGrid.Grid(gridDiv, gridOptions);
-            var data=response.data;
-            const colDefs = gridOptions.api.getColumnDefs();
-            colDefs.length=0;
-            const keys = Object.keys(data[0])
-            keys.forEach(key => colDefs.push({field : key}));
-            gridOptions.api.setColumnDefs(colDefs);
-                gridOptions.api.setRowData(response.data);
-                
-                //gridOptions.api.redrawRows();
-            }else{
-                alert(response.message);
-            }
+            gridOptions.api.setRowData(response.data);
+            
+            //gridOptions.api.redrawRows();
+        }else{
+            alert(response.message);
+        }
 
       }
     });
