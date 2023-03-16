@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>AG-GRID COMMUNITY VUEJS JQUERY BOOTSTRAP CRUD DEMO</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AG-GRID COMMUNITY VUEJS JQUERY BOOTSTRAP CRUD DEMO</title>
 
-	<!-- Latest compiled and minified CSS -->
+    <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
 <!-- Optional theme -->
@@ -18,32 +18,32 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <style type="text/css">
-	
+    
 </style>
 </head>
 <body>
 <div class="container" id="app">
-	<div class="row">
-		<div class="col-md-12">
-			<h2>AG-GRID COMMUNITY VUEJS JQUERY BOOTSTRAP CRUD DEMO</h2>
-				<div class="panel panel-primary">
-				  <div class="panel-heading">Search</div>
-				  <div class="panel-body">Panel Content</div>
-				</div>
-				<div class="panel panel-primary">
-				    <div class="panel-heading clearfix">
-				      <h4 class="panel-title pull-left" style="padding-top: 7.5px;">List data</h4>
-				      <div class="btn-group pull-right">
-				        <button class="btn btn-danger btn-sm" @click.prevent="showAddModel()">Add</button>
-				      </div>
-				    </div>
-			    	<div class="panel-body">
-			    		<div id="myGrid" class="ag-theme-alpine" style="width: 100%; height: 100%;"></div>
-			    	</div>
-			</div>
-		</div>   
-	</div>
-	<!-- Modal -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2>AG-GRID COMMUNITY VUEJS JQUERY BOOTSTRAP CRUD DEMO</h2>
+                <div class="panel panel-primary">
+                  <div class="panel-heading">Search</div>
+                  <div class="panel-body">Panel Content</div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading clearfix">
+                      <h4 class="panel-title pull-left" style="padding-top: 7.5px;">List data</h4>
+                      <div class="btn-group pull-right">
+                        <button class="btn btn-danger btn-sm" @click.prevent="showAddModel()">Add</button>
+                      </div>
+                    </div>
+                    <div class="panel-body">
+                        <div id="myGrid" class="ag-theme-alpine" style="width: 100%; height: 100%;"></div>
+                    </div>
+            </div>
+        </div>   
+    </div>
+    <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -55,30 +55,30 @@
       </div>
       <div class="modal-body">
         <form class="form-horizontal">
-	    <div class="form-group">
-	      <label class="control-label col-sm-2" for="">Make:</label>
-	      <div class="col-sm-10">
-	        <input type="text" class="form-control" id="make" placeholder="Enter make" name="make" v-model="dataAdd.make">
-	      </div>
-	    </div>
-	    <div class="form-group">
-	      <label class="control-label col-sm-2" for="">Model:</label>
-	      <div class="col-sm-10">          
-	        <input type="text" class="form-control" id="model" placeholder="Enter model" name="model" v-model="dataAdd.model">
-	      </div>
-	    </div>
-	    <div class="form-group">
-	      <label class="control-label col-sm-2" for="">Price:</label>
-	      <div class="col-sm-10">          
-	        <input type="text" class="form-control" id="price" placeholder="Enter price" name="price" v-model="dataAdd.price">
-	      </div>
-	    </div>
-	    <div class="form-group">        
-	      <div class="col-sm-offset-2 col-sm-10">
-	        <button class="btn btn-default" @click.prevent="addData()">Submit</button>
-	      </div>
-	    </div>
-	  </form>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="">Make:</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="make" placeholder="Enter make" name="make" v-model="dataAdd.make">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="">Model:</label>
+          <div class="col-sm-10">          
+            <input type="text" class="form-control" id="model" placeholder="Enter model" name="model" v-model="dataAdd.model">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="">Price:</label>
+          <div class="col-sm-10">          
+            <input type="text" class="form-control" id="price" placeholder="Enter price" name="price" v-model="dataAdd.price">
+          </div>
+        </div>
+        <div class="form-group">        
+          <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-default" @click.prevent="addData()">Submit</button>
+          </div>
+        </div>
+      </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -98,9 +98,9 @@ createApp({
         return {
             gridOption: '',
             dataAdd:{
-            	make:'',
-            	model:'',
-            	price:''
+                make:'',
+                model:'',
+                price:''
             }
         }
     },
@@ -117,6 +117,13 @@ createApp({
             {
                 field: "price",
                 editable: true
+            },
+            {
+              headerName: "action",
+              minWidth: 150,
+              cellRenderer: this.actionCellRenderer,
+              editable: false,
+              colId: "action"
             }
         ];
 
@@ -145,6 +152,53 @@ createApp({
             },
             columnDefs: columnDefs,
             rowData: rowData,
+            suppressClickEdit: true,
+             onRowEditingStarted: (params) => {
+                params.api.refreshCells({
+                  columns: ["action"],
+                  rowNodes: [params.node],
+                  force: true
+                });
+              },
+              onRowEditingStopped: (params) => {
+                params.api.refreshCells({
+                  columns: ["action"],
+                  rowNodes: [params.node],
+                  force: true
+                });
+              },
+              editType: "fullRow",
+            onCellClicked(params) {
+                // Handle click event for action cells
+                if (params.column.colId === "action" && params.event.target.dataset.action) {
+                  let action = params.event.target.dataset.action;
+
+                  if (action === "edit") {
+                    params.api.startEditingCell({
+                      rowIndex: params.node.rowIndex,
+                      // gets the first columnKey
+                      colKey: params.columnApi.getDisplayedCenterColumns()[0].colId
+                    });
+                  }
+
+                  if (action === "delete") {
+                    if (confirm("Are you sure!") == true) {
+                        params.api.applyTransaction({
+                          remove: [params.node.data]
+                        });
+                    }
+                    
+                  }
+
+                  if (action === "update") {
+                    params.api.stopEditing(false);
+                  }
+
+                  if (action === "cancel") {
+                    params.api.stopEditing(true);
+                  }
+                }
+              },
         };
 
         // setup the grid after the page has finished loading
@@ -160,7 +214,7 @@ createApp({
            $('#myModal').modal('show'); 
         },
         addData(){
-        	/*let name = Math.random().toString(36).substring(7);
+            /*let name = Math.random().toString(36).substring(7);
             let age = Math.floor(Math.random() * 100);
             let gender = Math.random() < 0.5 ? 'F' : 'M';
 
@@ -180,6 +234,45 @@ createApp({
         setAutoHeight() {
             this.gridOption.api.setDomLayout('autoHeight');
             document.querySelector('#myGrid').style.height = '';
+        },
+        actionCellRenderer(params) {
+          let eGui = document.createElement("div");
+
+          let editingCells = params.api.getEditingCells();
+          // checks if the rowIndex matches in at least one of the editing cells
+          let isCurrentRowEditing = editingCells.some((cell) => {
+            return cell.rowIndex === params.node.rowIndex;
+          });
+
+          if (isCurrentRowEditing) {
+            eGui.innerHTML = `
+                <button  
+                  class="btn btn-default update"
+                  data-action="update">
+                       update  
+                </button>
+                <button  
+                  class="btn btn-danger cancel"
+                  data-action="cancel">
+                       cancel
+                </button>
+                `;
+          } else {
+            eGui.innerHTML = `
+                <button 
+                  class="btn btn-default edit"  
+                  data-action="edit">
+                     edit 
+                  </button>
+                <button 
+                  class="btn btn-danger delete"
+                  data-action="delete">
+                     delete
+                </button>
+                `;
+          }
+
+          return eGui;
         }
     }
 }).mount('#app')
